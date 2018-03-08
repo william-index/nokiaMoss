@@ -10,7 +10,6 @@
 #include <Adafruit_PCD8544.h>
 
 #include "bmpGraphics.h"
-#include "cloud.h"
 #include "monster.h"
 
 // Software SPI (slower updates, more flexible pin options):
@@ -24,11 +23,17 @@ Adafruit_PCD8544 display = Adafruit_PCD8544(7, 6, 5, 4, 3);
 // Pin assignments
 int led = 14;
 
-// game objects
-Cloud *cloud = new Cloud();
-
 const int numMons = 3;
 Monster *monster[numMons];
+
+// atmosphere variables
+int temp = 50;
+int hum = 20;
+bool light = true;
+
+// counter for weather
+int weatherCurrentCycle = 0;
+const int weatherCycleLength = 20;
 
 
 // the setup routine runs once when you press reset:
@@ -36,7 +41,7 @@ void setup() {
   Serial.begin(9600); // why this? I just dont know  
   randomSeed(analogRead(4));
 
-  Serial.print(2);
+  Serial.println(2);
   display.begin();
   display.setContrast(60);
   display.clearDisplay();
@@ -52,30 +57,32 @@ void setup() {
 const int waterSwitch = 0;
 
 void loop() {
-
-  //  get water on switch
-  if (getButtonState(waterSwitch)) {
-    digitalWrite(led, HIGH);
-  } else {
-    digitalWrite(led, LOW);    // turn the LED off by making the voltage LOW
-  }
+  weatherCurrentCycle++;
 
   //  update game objects
-  cloud->update();
-  for (int i=0; i<numMons; i++) { monster[i]->update(); }
+  for (int i=0; i<numMons; i++) { 
+    if (monster[i]->isHatched) {
+      monster[i]->update();
+
+      if (weatherCurrentCycle == weatherCycleLength) {
+        monster[i]->updateScoreForWeather(temp, hum, light);    
+      }
+    }
+  }
+
+  if (weatherCurrentCycle == weatherCycleLength) {
+    weatherCurrentCycle = 0;
+  }
 
   //  draw display from state
   draw();
 
   //  delay for frame rate
-  delay(150);
+  delay(250);
 }
 
 void draw() {
   display.clearDisplay();
-
-  //  draws the cloud
-  display.drawBitmap(cloud->x, cloud->y,  cloud_bmp, cloud->w, cloud->h, BLACK);
 
   //  draws the monsters
   drawMonsters();
@@ -92,12 +99,46 @@ void createInitialMonsters() {
 }
 
 void drawMonsters() {
-   for (int i=0; i<numMons; i++) { 
-    // outline
-    display.drawBitmap(monster[i]->x, monster[i]->y, mon_body_bmp, monster[i]->w, monster[i]->h, BLACK);
-    // fill (to hide overlap between monsters)
-    display.drawBitmap(monster[i]->x, monster[i]->y, mon_body_fill_bmp, monster[i]->w, monster[i]->h, WHITE);
-   }
+    for (int i=0; i<numMons; i++) { 
+      if (monster[i]->isHatched && !monster[i]->isGhost) {
+        drawMonster(i);
+      }
+    }
+}
+
+void drawMonster(int i) {
+  drawMonsterBody(i);
+
+  //  draw Stem
+  if (monster[i]->showStem()) {
+    display.drawBitmap(monster[i]->x + 2, monster[i]->y - 4, mon_stem_bmp, 3, 4, BLACK);
+  } else { return; }
+
+  //  draw leaves
+  if (monster[i]->showLeaf()) {
+    display.drawBitmap(monster[i]->x - 6, monster[i]->y - 5, mon_leaf_1_bmp, 24, 5, BLACK);
+  } else { return; }
+
+  //  draw segments
+  if (monster[i]->stemSegments() > 0) {
+    for (int j=0; j<monster[i]->stemSegments(); j++) { 
+      display.drawBitmap(monster[i]->x, monster[i]->y - (6 + j*2), mon_seg_1_bmp, 8, 2, BLACK);
+    }
+  } else { return; }
+
+  //  draw flower
+  if (monster[i]->showFlower()) {
+    display.drawBitmap(monster[i]->x - 2, monster[i]->y - 20, mon_flower_1_bmp, 11, 10, BLACK);
+  } else if (monster[i]->showBulb()) { 
+    Serial.println("draw bulb");
+  }
+}
+
+void drawMonsterBody(int i) {
+  // outline
+  display.drawBitmap(monster[i]->x, monster[i]->y, mon_body_bmp, monster[i]->w, monster[i]->h, BLACK);
+  // fill (to hide overlap between monsters)
+  display.drawBitmap(monster[i]->x, monster[i]->y, mon_body_fill_bmp, monster[i]->w, monster[i]->h, WHITE);
 }
 
 //-----

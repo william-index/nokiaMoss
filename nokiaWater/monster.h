@@ -16,7 +16,7 @@ class Monster {
     int type = 0;
 
     // lifecycle state indicators
-    bool isHatched = false;
+    bool isHatched = true;
     bool isGhost = false;
     
 
