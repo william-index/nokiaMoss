@@ -3,8 +3,8 @@
 class Monster {
   public:
     int x = 0;
-    int targX = 0;
-    int y = 48 - 6;
+    int targX = 10;
+    int y = 30;
     int w = 8;
     int h = 5;
 
@@ -119,7 +119,7 @@ class Monster {
      */
     void checkForNewX() {
       if (random(moveFreq) == 1) {
-        targX = random(screenMax);
+        targX = random(10, screenMax);
       }
     }
 

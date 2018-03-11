@@ -1,16 +1,10 @@
-/*
-  Blink
-  Turns on an LED on for one second, then off for one second, repeatedly.
- 
-  This example code is in the public domain.
- */
- 
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
 
 #include "bmpGraphics.h"
 #include "monster.h"
+#include "atmosphereController.h"
 
 // Software SPI (slower updates, more flexible pin options):
 // pin 7 - Serial clock out (SCLK)
@@ -30,10 +24,11 @@ Monster *monster[numMons];
 int temp = 50;
 int hum = 20;
 bool light = true;
+AtmosphereController *atmosphere = new AtmosphereController();
 
 // counter for weather
 int weatherCurrentCycle = 0;
-const int weatherCycleLength = 20;
+const int weatherCycleLength = 5;
 
 
 // the setup routine runs once when you press reset:
@@ -51,7 +46,8 @@ void setup() {
   
   // initialize the digital pin as an output.
   pinMode(led, OUTPUT); 
-  pinMode(0, INPUT); // Water switch
+  pinMode(15, INPUT); // hum down
+  pinMode(16, INPUT); // hum down
 }
 
 const int waterSwitch = 0;
@@ -71,6 +67,7 @@ void loop() {
   }
 
   if (weatherCurrentCycle == weatherCycleLength) {
+    atmosphere->update();
     weatherCurrentCycle = 0;
   }
 
@@ -86,8 +83,27 @@ void draw() {
 
   //  draws the monsters
   drawMonsters();
+
+  drawWeatherMetrics();
   
   display.display();
+}
+
+//-----
+void drawWeatherMetrics() {
+  //  draws divider line
+  display.drawLine(8, 36, 84, 36, BLACK);
+  
+  //  draw temperature gauge
+  display.drawRoundRect(3, 2, 3, 44, 1, BLACK);
+  display.drawLine(4, 45, 4, 45 - ((atmosphere->getTemp() / 100.0) * 42), BLACK);
+
+  //  display humidity
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(8, display.height() - 9);
+  display.print(atmosphere->getHum());
+  display.print("%");
 }
 
 //-----
@@ -144,7 +160,5 @@ void drawMonsterBody(int i) {
 //-----
 
 
-bool getButtonState(String buttonKey) {
-  return digitalRead(waterSwitch) == 1;
-}
+
 
