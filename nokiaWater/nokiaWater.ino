@@ -65,7 +65,11 @@ void loop() {
       monster[i]->update();
 
       if (weatherCurrentCycle == weatherCycleLength) {
-        monster[i]->updateScoreForWeather(temp, hum, light);    
+        monster[i]->updateScoreForWeather(
+          atmosphere->getTemp(), 
+          atmosphere->getHum(), 
+          atmosphere->showSun()
+        );    
       }
     }
   }
@@ -86,7 +90,7 @@ void loop() {
   draw();
 
   //  delay for frame rate
-  delay(250);
+  delay(200);
 }
 
 void draw() {
@@ -171,57 +175,86 @@ void createInitialMonsters() {
 
 void drawMonsters() {
     for (int i=0; i<numMons; i++) { 
-      if (monster[i]->isHatched && !monster[i]->isGhost) {
+      if (monster[i]->isHatched) {
         drawMonster(i);
       }
     }
 }
 
 void drawMonster(int i) {
+  //  draw ghost
+  if (monster[i]->isGhost) { 
+    drawGhost(i); 
+    return; 
+  }
+
+  //  draws a living plant monster
   drawMonsterBody(i);
+
+  if (monster[i]->isWilted()) {
+    display.drawBitmap(monster[i]->x - 4, monster[i]->getY() + 2 - 10, mon_wilt_bmp, 15, 10, BLACK);
+    return;
+  }
 
   //  draw Stem
   if (monster[i]->showStem()) {
-    display.drawBitmap(monster[i]->x + 2, monster[i]->y - 4, mon_stem_bmp, 3, 4, BLACK);
+    display.drawBitmap(monster[i]->x + 2, monster[i]->getY() - 4, mon_stem_bmp, 3, 4, BLACK);
   } else { return; }
 
   //  draw leaves
   if (monster[i]->showLeaf()) {
-    display.drawBitmap(monster[i]->x - 6, monster[i]->y - 5, mon_leaf_1_bmp, 24, 5, BLACK);
+    display.drawBitmap(monster[i]->x - 6, monster[i]->getY() - 5, mon_leaf_1_bmp, 24, 5, BLACK);
   } else { return; }
 
   //  draw segments
   if (monster[i]->stemSegments() > 0) {
     for (int j=0; j<monster[i]->stemSegments(); j++) { 
-      display.drawBitmap(monster[i]->x, monster[i]->y - (6 + j*2), mon_seg_1_bmp, 8, 2, BLACK);
+      display.drawBitmap(monster[i]->x, monster[i]->getY() - (6 + j*2), mon_seg_1_bmp, 8, 2, BLACK);
     }
   } else { return; }
 
   //  draw flower
   if (monster[i]->showFlower()) {
-    display.drawBitmap(monster[i]->x - 2, monster[i]->y - 20, mon_flower_1_bmp, 11, 10, BLACK);
+    display.drawBitmap(monster[i]->x - 2, monster[i]->getY() - 20, mon_flower_1_bmp, 11, 10, BLACK);
   } else if (monster[i]->showBulb()) { 
     Serial.println("draw bulb");
   }
 }
 
+/**
+ * Draws a monster in the ghost state
+ */
+void drawGhost(int i) {
+  if (monster[i]->isMovingRight()) {
+    display.drawBitmap(monster[i]->x, monster[i]->getY(), ghost_right_bmp, 8, 6, BLACK);
+    display.drawBitmap(monster[i]->x + 3, monster[i]->getY() - 3, mon_stem_bmp, 3, 4, BLACK);
+  } else {
+    display.drawBitmap(monster[i]->x, monster[i]->getY(), ghost_left_bmp, 8, 6, BLACK);
+    display.drawBitmap(monster[i]->x + 2, monster[i]->getY() - 3, mon_stem_bmp, 3, 4, BLACK);
+  }
+}
+
+/**
+ * Draws the monsters body, with the main part, eyes and legs as well as the 
+ * state in the current animation cycle
+ */
 void drawMonsterBody(int i) {
   //  body outline
-  display.drawRoundRect(monster[i]->x, monster[i]->y, monster[i]->w, monster[i]->h, 1, BLACK);
-  display.fillRect(monster[i]->x+1, monster[i]->y+1, monster[i]->w-2, monster[i]->h-2, WHITE);
+  display.drawRoundRect(monster[i]->x, monster[i]->getY(), monster[i]->w, monster[i]->h, 1, BLACK);
+  display.fillRect(monster[i]->x+1, monster[i]->getY()+1, monster[i]->w-2, monster[i]->h-2, WHITE);
 
   //  draws legs
   if (monster[i]->drawLeftLeg()) {
-    display.drawPixel(monster[i]->x + 1, monster[i]->y + monster[i]->h, BLACK);  
+    display.drawPixel(monster[i]->x + 1, monster[i]->getY() + monster[i]->h, BLACK);  
   }
   if (monster[i]->drawRightLeg()) {
-    display.drawPixel(monster[i]->x + monster[i]->w - 2, monster[i]->y + monster[i]->h, BLACK);
+    display.drawPixel(monster[i]->x + monster[i]->w - 2, monster[i]->getY() + monster[i]->h, BLACK);
   }
 
   //  draws eyes
   if (monster[i]->drawEyes()) {
-    display.drawPixel(monster[i]->x + 2, monster[i]->y + 2, BLACK);
-    display.drawPixel(monster[i]->x + 4, monster[i]->y + 2, BLACK);
+    display.drawPixel(monster[i]->x + 2, monster[i]->getY() + 2, BLACK);
+    display.drawPixel(monster[i]->x + 4, monster[i]->getY() + 2, BLACK);
   }
 }
 

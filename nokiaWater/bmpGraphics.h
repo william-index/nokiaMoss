@@ -9,7 +9,39 @@ static const unsigned char PROGMEM moon_bmp[] =
   B01110000};
 
 
+// ------ GHOSTS
+static const unsigned char PROGMEM ghost_right_bmp[] =
+{ B00011110,
+  B00010001,
+  B00100101,
+  B00100001,
+  B01000110,
+  B11111000};
+
+static const unsigned char PROGMEM ghost_left_bmp[] =
+{ B01111000,
+  B10001000,
+  B10100100,
+  B10000100,
+  B01100010,
+  B00011111};
+
+
+
 // ------ MONSTERS
+// wilted plant
+static const unsigned char PROGMEM mon_wilt_bmp[] =
+{ B00111100, B00000000,
+  B01100110, B00000000,
+  B01110010, B00000000,
+  B11110001, B00000000,
+  B11100001, B00000000,
+  B01100001, B00000000,
+  B00011111, B11100000,
+  B01110001, B00111000,
+  B11100000, B00001110,
+  B11000000, B00000110 };
+  
 // shared stem
 static const unsigned char PROGMEM mon_stem_bmp[] =
 { B11100000,
