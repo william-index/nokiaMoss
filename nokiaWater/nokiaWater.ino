@@ -5,6 +5,7 @@
 #include "bmpGraphics.h"
 #include "monster.h"
 #include "atmosphereController.h"
+#include "rainController.h"
 
 // Software SPI (slower updates, more flexible pin options):
 // pin 7 - Serial clock out (SCLK)
@@ -24,7 +25,9 @@ Monster *monster[numMons];
 int temp = 50;
 int hum = 20;
 bool light = true;
+
 AtmosphereController *atmosphere = new AtmosphereController();
+RainController *rainMaker = new RainController();
 
 // counter for weather
 int weatherCurrentCycle = 0;
@@ -66,10 +69,17 @@ void loop() {
     }
   }
 
+  //  slower cycles for weather
   if (weatherCurrentCycle == weatherCycleLength) {
     atmosphere->update();
     weatherCurrentCycle = 0;
   }
+
+  //  rain!!!!
+  if (atmosphere->shouldRain()) {
+    rainMaker->update();  
+  }
+  
 
   //  draw display from state
   draw();
@@ -85,11 +95,27 @@ void draw() {
   drawMonsters();
 
   drawWeatherMetrics();
+
+  drawRain();
   
   display.display();
 }
 
 //-----
+void drawRain() {
+  if (atmosphere->shouldRain()) {
+    for (int i = 0; i<rainMaker->numRaindrops; i++) {
+      display.drawLine(
+        10 + (74/rainMaker->numRaindrops) * i, 
+        rainMaker->rainDrops[i], 
+        10 + (74/rainMaker->numRaindrops) * i, 
+        rainMaker->rainDrops[i] + 2, 
+        BLACK
+      );
+    }
+  }
+}
+
 void drawWeatherMetrics() {
   //  draws divider line
   display.drawLine(8, 36, 84, 36, BLACK);

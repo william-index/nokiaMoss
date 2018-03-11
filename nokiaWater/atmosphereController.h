@@ -3,7 +3,8 @@
 class AtmosphereController {
   public:
     int currentTemp = 45;
-    int currentHum = 20;
+    int currentHum = 95;
+    const int criticalHum = 95;
   
   
   public:
@@ -20,6 +21,10 @@ class AtmosphereController {
 
     int getHum() {
       return currentHum;
+    }
+
+    bool shouldRain() {
+      return currentHum >= criticalHum;
     }
 
   private:
