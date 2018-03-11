@@ -2,11 +2,16 @@
 
 class Monster {
   public:
-    int x = 0;
+    int x = 10;
     int targX = 10;
     int y = 30;
-    int w = 8;
+    int w = 7;
     int h = 5;
+    
+    // lifelike animation states
+    bool isWalking = false;
+    bool leftActiveStep = true;
+    bool isBlinking = false;
 
     // 
     const int moveFreq = 50;
@@ -33,6 +38,19 @@ class Monster {
 
     void update() {
       updateMovement();
+      calculateBlink();
+    }
+
+    bool drawLeftLeg() {
+      return !isWalking || leftActiveStep;
+    }
+
+    bool drawRightLeg() {
+      return !isWalking || !leftActiveStep;
+    }
+
+    bool drawEyes() {
+      return isWalking || !isBlinking;
     }
 
     /** 
@@ -84,6 +102,19 @@ class Monster {
 
   private:
     /**
+     * Checks and sets if it should blink now
+     */
+    void calculateBlink() {
+      if (isBlinking) {
+        isBlinking = false;
+      }
+
+      if (random(20) <= 1) {
+        isBlinking = true;
+      }
+    }
+    
+    /**
      * Updates the status of if it is a ghost/dead or not
      */
     void updateIsGhost() {
@@ -106,12 +137,17 @@ class Monster {
      */
     void updateMovement() {
       checkForNewX();
+      isWalking = false;
       
       if (targX > x) {
         stepRight();
+        isWalking = true;
       } else if(targX < x) {
         stepLeft(); 
+        isWalking = true;
       }
+
+      leftActiveStep = !leftActiveStep;
     }
     
     /** 

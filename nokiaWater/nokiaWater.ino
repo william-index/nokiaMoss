@@ -91,13 +91,12 @@ void loop() {
 void draw() {
   display.clearDisplay();
 
-  //  draws the monsters
+  drawRain();
+  
   drawMonsters();
 
   drawWeatherMetrics();
 
-  drawRain();
-  
   display.display();
 }
 
@@ -105,13 +104,22 @@ void draw() {
 void drawRain() {
   if (atmosphere->shouldRain()) {
     for (int i = 0; i<rainMaker->numRaindrops; i++) {
-      display.drawLine(
-        10 + (74/rainMaker->numRaindrops) * i, 
-        rainMaker->rainDrops[i], 
-        10 + (74/rainMaker->numRaindrops) * i, 
-        rainMaker->rainDrops[i] + 2, 
-        BLACK
-      );
+      if (atmosphere->getTemp() > atmosphere->freezingPoint) {
+        display.drawLine(
+          10 + (74/rainMaker->numRaindrops) * i, 
+          rainMaker->rainDrops[i], 
+          10 + (74/rainMaker->numRaindrops) * i, 
+          rainMaker->rainDrops[i] + 2, 
+          BLACK
+        );
+      } else {
+        display.drawCircle(
+          10 + (74/rainMaker->numRaindrops) * i,
+          rainMaker->rainDrops[i], 
+          1,
+          BLACK
+        );
+      }
     }
   }
 }
@@ -177,10 +185,23 @@ void drawMonster(int i) {
 }
 
 void drawMonsterBody(int i) {
-  // outline
-  display.drawBitmap(monster[i]->x, monster[i]->y, mon_body_bmp, monster[i]->w, monster[i]->h, BLACK);
-  // fill (to hide overlap between monsters)
-  display.drawBitmap(monster[i]->x, monster[i]->y, mon_body_fill_bmp, monster[i]->w, monster[i]->h, WHITE);
+  //  body outline
+  display.drawRoundRect(monster[i]->x, monster[i]->y, monster[i]->w, monster[i]->h, 1, BLACK);
+  display.fillRect(monster[i]->x+1, monster[i]->y+1, monster[i]->w-2, monster[i]->h-2, WHITE);
+
+  //  draws legs
+  if (monster[i]->drawLeftLeg()) {
+    display.drawPixel(monster[i]->x + 1, monster[i]->y + monster[i]->h, BLACK);  
+  }
+  if (monster[i]->drawRightLeg()) {
+    display.drawPixel(monster[i]->x + monster[i]->w - 2, monster[i]->y + monster[i]->h, BLACK);
+  }
+
+  //  draws eyes
+  if (monster[i]->drawEyes()) {
+    display.drawPixel(monster[i]->x + 2, monster[i]->y + 2, BLACK);
+    display.drawPixel(monster[i]->x + 4, monster[i]->y + 2, BLACK);
+  }
 }
 
 //-----

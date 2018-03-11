@@ -1,19 +1,3 @@
-// monster body
-static const unsigned char PROGMEM mon_body_bmp[] =
-{ B01111100,
-  B10000010,
-  B10101010, 
-  B10000010,
-  B01111100 };
-
-static const unsigned char PROGMEM mon_body_fill_bmp[] =
-{ B00000000,
-  B01111100,
-  B01010100, 
-  B01111100,
-  B00000000 };
-
-
 // flower parts
 static const unsigned char PROGMEM mon_stem_bmp[] =
 { B11100000,

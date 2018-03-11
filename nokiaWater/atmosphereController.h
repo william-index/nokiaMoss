@@ -5,6 +5,7 @@ class AtmosphereController {
     int currentTemp = 45;
     int currentHum = 95;
     const int criticalHum = 95;
+    const int freezingPoint = 24;
   
   
   public:
