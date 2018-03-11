@@ -17,8 +17,9 @@ class Monster {
     
 
     // lifecycle state indicators
-    bool isHatched = true;
+    bool isHatched = false;
     bool isGhost = false;
+    const int hatchScore = 30;
 
     // plant species indicators and definitions
     int type = 0;
@@ -100,7 +101,7 @@ class Monster {
       int metConditions = numWeatherConditionsMet(temp, hum, light);
 
       if (metConditions == 3) {
-        if (!isHatched) { isHatched = true; return; }
+        if (!isHatched && score >= hatchScore) { isHatched = true; }
         if (rot > 0) { rot--; }
 
         score++;
@@ -144,7 +145,7 @@ class Monster {
   private:
     void resetMonster() {
       type = 0;
-      isHatched = true; // @TODO temp during dev
+      isHatched = false; // @TODO temp during dev
       isGhost = false;
       score = 0;
       rot = 0;
@@ -188,7 +189,7 @@ class Monster {
      * @return {int} number of weather conditions met 0—3
      */
     int numWeatherConditionsMet(int temp, int hum, bool light) {
-      return 1;
+      return 3;
     }
 
     // -- MOVEMENT
@@ -196,6 +197,8 @@ class Monster {
      * Updates the left right postion and calls inc/dec in x pos
      */
     void updateMovement() {
+      if (!isHatched) { return; }
+      
       checkForNewX();
       isWalking = false;
       

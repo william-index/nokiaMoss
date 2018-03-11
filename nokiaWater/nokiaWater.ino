@@ -206,9 +206,7 @@ void drawSunMoon() {
 
 void drawMonsters() {
     for (int i=0; i<numMons; i++) { 
-      if (monster[i]->isHatched) {
-        drawMonster(i);
-      }
+      drawMonster(i);
     }
 }
 
@@ -219,6 +217,11 @@ void drawMonster(int i) {
   if (monster[i]->isGhost) { 
     drawGhost(i); 
     return; 
+  }
+
+  if (!monster[i]->isHatched) {
+    drawSeed(i);
+    return;
   }
 
   //  draws a living plant monster
@@ -252,6 +255,13 @@ void drawMonster(int i) {
   } else if (monster[i]->showBulb()) { 
     Serial.println("draw bulb");
   }
+}
+
+/**
+ * Draws the seed for a monster
+ */
+void drawSeed(int i) {
+  display.drawCircle(monster[i]->x, monster[i]->getY(), 3, BLACK);
 }
 
 /**
