@@ -6,6 +6,7 @@
 #include "monster.h"
 #include "atmosphereController.h"
 #include "rainController.h"
+#include "seedSelectorController.h"
 
 // Software SPI (slower updates, more flexible pin options):
 Adafruit_PCD8544 display = Adafruit_PCD8544(7, 6, 5, 4, 3);
@@ -17,6 +18,7 @@ Monster *monster[numMons];
 // State Controllers
 AtmosphereController *atmosphere = new AtmosphereController();
 RainController *rainMaker = new RainController();
+SeedSelectorController *seedSelector = new SeedSelectorController();
 
 // counter for weather
 int weatherCurrentCycle = 0;
@@ -40,12 +42,44 @@ void setup() {
   pinMode(15, INPUT); // hum down
   pinMode(16, INPUT); // hum down
   pinMode(17, INPUT); // light switch
+  pinMode(18, INPUT); // menu button
 }
 
 const int waterSwitch = 0;
 
+
+// ------------------ UPDATE
+
 void loop() {
-  weatherCurrentCycle++;
+  //  update state for screens
+  updateSeedSelectorViewState();
+  
+  //  only perform calculations for monsters if on that state
+  if (seedSelector->isActive) {
+    seedSelector->update();
+  } else {
+    updateMonsterViewState();
+  }
+
+  //  draw display from state
+  draw();
+
+  //  delay for frame rate
+  delay(200);
+}
+
+/**
+ * Update the state for the seed selector
+ */
+void updateSeedSelectorViewState() {
+  seedSelector->updateActiveState();
+}
+
+/**
+ * Update loop cycle for main monster view
+ */
+void updateMonsterViewState() {
+    weatherCurrentCycle++;
 
   //  update game objects
   for (int i=0; i<numMons; i++) { 
@@ -72,30 +106,66 @@ void loop() {
   if (atmosphere->shouldRain()) {
     rainMaker->update();  
   }
-  
-
-  //  draw display from state
-  draw();
-
-  //  delay for frame rate
-  delay(200);
 }
 
+/**
+ * Initialized the monsters
+ */
+void createInitialMonsters() {
+  monster[0] = new Monster();
+  monster[1] = new Monster();
+  monster[2] = new Monster();
+}
+
+// ------------------ DRAW
+/**
+ * Main Draw loop
+ */
 void draw() {
   display.clearDisplay();
 
-  drawAvailableSeeds();
-
-  drawRain();
-  
-  drawMonsters();
-
-  drawWeatherMetrics();
+  //  Conditional for which state to draw
+  if (seedSelector->isActive) {
+    drawSeedTypes();
+    drawSeedTypesUI();
+  } else {
+    drawAvailableSeeds();
+    drawRain();
+    drawMonsters();
+    drawWeatherMetrics();
+  }
 
   display.display();
 }
 
-//-----
+//----- SEED VIEW DRAW METHODS
+
+void drawSeedTypes() {
+  //  seeds are all 8x6
+  //  This is gross but not sure show else to iter over bitmaps?
+  for (int i=0; i<seedSelector->numSeeds; i++) {
+    drawSeed(i);
+  }
+}
+
+void drawSeed(int i) {
+  //  @TODO  conditional for when I have multiple seed graphics
+  display.drawBitmap(seedSelector->getSeedXPosition(i), seedSelector->getSeedYPosition(i), 
+    skull_plant_seed_bmp, 8, 6, BLACK);
+}
+
+void drawSeedTypesUI() {
+  //  questionMark
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(display.width() / 2 - 3, display.height() / 2 - 5);
+  display.print("?");
+
+  //  
+  display.drawCircle(seedSelector->getCursorX(), seedSelector->getCursorY(), 7, BLACK);
+}
+
+//----- MONSTER VIEW DRAW METHODS
 
 /**
  * Draws the number of seeds that can be added from the queue
@@ -171,14 +241,6 @@ void drawSunMoon() {
   } else {
     display.drawBitmap(84-7, 2, moon_bmp, 6, 7, BLACK);
   }
-}
-
-//-----
-
-void createInitialMonsters() {
-  monster[0] = new Monster();
-  monster[1] = new Monster();
-  monster[2] = new Monster();
 }
 
 void drawMonsters() {

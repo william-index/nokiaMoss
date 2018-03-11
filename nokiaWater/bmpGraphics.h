@@ -9,6 +9,15 @@ static const unsigned char PROGMEM moon_bmp[] =
   B01110000};
 
 
+// ------ SEEDS
+static const unsigned char PROGMEM skull_plant_seed_bmp[] =
+{ B11111111,
+  B10000001,
+  B01000010,
+  B00100100,
+  B10011001,
+  B11011011};
+
 // ------ GHOSTS
 static const unsigned char PROGMEM ghost_right_bmp[] =
 { B00011110,
