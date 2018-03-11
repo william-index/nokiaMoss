@@ -23,6 +23,7 @@ class Monster {
     // plant species indicators and definitions
     int type = 0;
     const int prehatch = 0;
+    const int totalSeedTypes = 4;
     
 
   private:
@@ -37,6 +38,7 @@ class Monster {
     // progress towards death
     const int wiltToRot = 15;
     const int maxAllowedRot = 20;
+
   
   public:
     Monster ();
@@ -63,6 +65,11 @@ class Monster {
      */
     bool isActive() {
       return type != prehatch;
+    }
+
+    void setAsActive() {
+      type = random(totalSeedTypes + 1);
+      Serial.println(type);
     }
 
     /**
@@ -137,7 +144,7 @@ class Monster {
   private:
     void resetMonster() {
       type = 0;
-      isHatched = false;
+      isHatched = true; // @TODO temp during dev
       isGhost = false;
       score = 0;
       rot = 0;

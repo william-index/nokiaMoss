@@ -40,12 +40,15 @@ void setup() {
   pinMode(15, INPUT); // hum down
   pinMode(16, INPUT); // hum down
   pinMode(17, INPUT); // light switch
+  pinMode(18, INPUT); // new seed button
 }
 
 const int waterSwitch = 0;
 
 void loop() {
   weatherCurrentCycle++;
+
+  checkSeedDrop();
 
   //  update game objects
   for (int i=0; i<numMons; i++) { 
@@ -80,6 +83,32 @@ void loop() {
   //  delay for frame rate
   delay(200);
 }
+
+/**
+ * Handles readding a random plant type back when death
+ */
+int previousSeedBtnState = 0;
+void checkSeedDrop() {
+  bool hasDroppedSeed = false;
+  if (digitalRead(18) && digitalRead(18) != previousSeedBtnState) { 
+    for (int i=0; i<numMons; i++) { 
+      if (!monster[i]->isActive() && !hasDroppedSeed) {
+        monster[i]->setAsActive();
+        hasDroppedSeed = true;
+      }
+    }
+  }
+
+  previousSeedBtnState = digitalRead(18);
+}
+
+void createInitialMonsters() {
+  monster[0] = new Monster();
+  monster[1] = new Monster();
+  monster[2] = new Monster();
+}
+
+// ------------ DRAW
 
 void draw() {
   display.clearDisplay();
@@ -174,12 +203,6 @@ void drawSunMoon() {
 }
 
 //-----
-
-void createInitialMonsters() {
-  monster[0] = new Monster();
-  monster[1] = new Monster();
-  monster[2] = new Monster();
-}
 
 void drawMonsters() {
     for (int i=0; i<numMons; i++) { 
