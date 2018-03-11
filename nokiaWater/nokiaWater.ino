@@ -8,30 +8,19 @@
 #include "rainController.h"
 
 // Software SPI (slower updates, more flexible pin options):
-// pin 7 - Serial clock out (SCLK)
-// pin 6 - Serial data out (DIN)
-// pin 5 - Data/Command select (D/C)
-// pin 4 - LCD chip select (CS)
-// pin 3 - LCD reset (RST)
 Adafruit_PCD8544 display = Adafruit_PCD8544(7, 6, 5, 4, 3);
 
-// Pin assignments
-int led = 14;
-
+// Monster intialiization
 const int numMons = 3;
 Monster *monster[numMons];
 
-// atmosphere variables
-int temp = 50;
-int hum = 20;
-bool light = true;
-
+// State Controllers
 AtmosphereController *atmosphere = new AtmosphereController();
 RainController *rainMaker = new RainController();
 
 // counter for weather
 int weatherCurrentCycle = 0;
-const int weatherCycleLength = 5;
+const int weatherCycleLength = 1;
 
 
 // the setup routine runs once when you press reset:
@@ -43,12 +32,11 @@ void setup() {
   display.begin();
   display.setContrast(60);
   display.clearDisplay();
-  //  end init
+  //  end display init
 
   createInitialMonsters();
   
   // initialize the digital pin as an output.
-  pinMode(led, OUTPUT); 
   pinMode(15, INPUT); // hum down
   pinMode(16, INPUT); // hum down
   pinMode(17, INPUT); // light switch
@@ -61,7 +49,7 @@ void loop() {
 
   //  update game objects
   for (int i=0; i<numMons; i++) { 
-    if (monster[i]->isHatched) {
+    if (monster[i]->isActive()) {
       monster[i]->update();
 
       if (weatherCurrentCycle == weatherCycleLength) {
@@ -96,6 +84,8 @@ void loop() {
 void draw() {
   display.clearDisplay();
 
+  drawAvailableSeeds();
+
   drawRain();
   
   drawMonsters();
@@ -106,6 +96,24 @@ void draw() {
 }
 
 //-----
+
+/**
+ * Draws the number of seeds that can be added from the queue
+ */
+void drawAvailableSeeds() {
+  int drawnOpenSeeds = 1;
+  
+  for (int i=0; i<numMons; i++) { 
+    if (!monster[i]->isActive()) {
+      display.drawCircle(87 - (drawnOpenSeeds * 6), 41, 2, BLACK);
+      drawnOpenSeeds++;
+    }
+  }
+}
+
+/**
+ * Draws rain/snow
+ */
 void drawRain() {
   if (atmosphere->shouldRain()) {
     for (int i = 0; i<rainMaker->numRaindrops; i++) {
@@ -182,6 +190,8 @@ void drawMonsters() {
 }
 
 void drawMonster(int i) {
+  //  abort if not active game object
+  if (!monster[i]->isActive()) { return; }
   //  draw ghost
   if (monster[i]->isGhost) { 
     drawGhost(i); 

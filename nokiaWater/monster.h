@@ -14,12 +14,15 @@ class Monster {
     bool isBlinking = false;
     const int moveFreq = 50;
 
-    // plant species indicator
-    int type = 0;
+    
 
     // lifecycle state indicators
     bool isHatched = true;
     bool isGhost = false;
+
+    // plant species indicators and definitions
+    int type = 0;
+    const int prehatch = 0;
     
 
   private:
@@ -53,6 +56,13 @@ class Monster {
 
     bool drawEyes() {
       return isWalking || !isBlinking;
+    }
+
+    /**
+     * Returns whether or not the monster is currently an active game object
+     */
+    bool isActive() {
+      return type != prehatch;
     }
 
     /**
@@ -126,6 +136,7 @@ class Monster {
 
   private:
     void resetMonster() {
+      type = 0;
       isHatched = false;
       isGhost = false;
       score = 0;
