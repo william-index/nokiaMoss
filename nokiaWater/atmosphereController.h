@@ -4,6 +4,9 @@ class AtmosphereController {
   public:
     int currentTemp = 45;
     int currentHum = 95;
+    bool isSunny = true;
+    bool showAltSunshine = true;
+    
     const int criticalHum = 95;
     const int freezingPoint = 24;
   
@@ -14,6 +17,7 @@ class AtmosphereController {
     void update() {
       updateTemp();
       updateHum();
+      updateLight();
     }
 
     int getTemp() {
@@ -26,6 +30,15 @@ class AtmosphereController {
 
     bool shouldRain() {
       return currentHum >= criticalHum;
+    }
+
+    bool showSun() {
+      return isSunny;
+    }
+
+    bool showShineAlt() {
+      showAltSunshine = !showAltSunshine;
+      return showAltSunshine;
     }
 
   private:
@@ -45,6 +58,10 @@ class AtmosphereController {
       } else if (currentTemp > targetTemp) {
         currentTemp--;
       }
+    }
+
+    void updateLight() {
+      isSunny = digitalRead(17);
     }
 };
 

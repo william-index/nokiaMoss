@@ -51,6 +51,7 @@ void setup() {
   pinMode(led, OUTPUT); 
   pinMode(15, INPUT); // hum down
   pinMode(16, INPUT); // hum down
+  pinMode(17, INPUT); // light switch
 }
 
 const int waterSwitch = 0;
@@ -125,6 +126,9 @@ void drawRain() {
 }
 
 void drawWeatherMetrics() {
+  //  draw celestial body
+  drawSunMoon();
+  
   //  draws divider line
   display.drawLine(8, 36, 84, 36, BLACK);
   
@@ -138,6 +142,23 @@ void drawWeatherMetrics() {
   display.setCursor(8, display.height() - 9);
   display.print(atmosphere->getHum());
   display.print("%");
+}
+
+void drawSunMoon() {
+  if(atmosphere->showSun()) {
+    display.drawCircle(84 - 5, 5, 3, BLACK);
+
+    if (atmosphere->showShineAlt()) {
+      display.drawPixel(84- 10, 2, BLACK);
+      display.drawPixel(84- 9, 8, BLACK);
+      display.drawPixel(84- 2, 9, BLACK);
+    } else {
+      display.drawPixel(84- 11, 5, BLACK);
+      display.drawPixel(84- 5, 10, BLACK); 
+    }
+  } else {
+    display.drawBitmap(84-7, 2, moon_bmp, 6, 7, BLACK);
+  }
 }
 
 //-----

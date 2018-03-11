@@ -1,10 +1,23 @@
-// flower parts
+// ------ WEATHER
+static const unsigned char PROGMEM moon_bmp[] =
+{ B01110000,
+  B11001000,
+  B00100100,
+  B00100100,
+  B01000100,
+  B10001000,
+  B01110000};
+
+
+// ------ MONSTERS
+// shared stem
 static const unsigned char PROGMEM mon_stem_bmp[] =
 { B11100000,
   B01000000,
   B01000000,
   B01000000};
 
+// leaves
 static const unsigned char PROGMEM mon_leaf_1_bmp[] =
 { B10000000, B00000000, B00100000,
   B01111110, B00001111, B11000000,
@@ -12,11 +25,12 @@ static const unsigned char PROGMEM mon_leaf_1_bmp[] =
   B00111111, B11111111, B10000000,
   B00011110, B00001111, B00000000 };
 
+//segments
  static const unsigned char PROGMEM mon_seg_1_bmp[] =
 { B00111000,
   B01010100};
 
-// 11 x 10
+// flowers: 11 x 10
 static const unsigned char PROGMEM mon_flower_1_bmp[] =
 { B00000100, B00000000,
   B00001010, B00000000,
