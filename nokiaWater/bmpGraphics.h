@@ -135,7 +135,7 @@ static const unsigned char PROGMEM mon_leaf_2_bmp[] =
 static const unsigned char PROGMEM mon_flower_2_bmp[] =
 { B00110101, B10000000,
   B00001010, B00000000,
-  B00000100, B11000000,
+  B01100100, B11000000,
   B10010101, B00100000,
   B00001110, B00000000 };
 

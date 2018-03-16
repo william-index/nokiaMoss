@@ -239,29 +239,103 @@ void drawMonster(int i) {
 
   //  draw leaves
   if (monster[i]->showLeaf()) {
-    display.drawBitmap(monster[i]->x - 6, monster[i]->getY() - 5, mon_leaf_1_bmp, 24, 5, BLACK);
+    drawMonsterLeaf(i);
   } else { return; }
 
   //  draw segments
   if (monster[i]->stemSegments() > 0) {
-    for (int j=0; j<monster[i]->stemSegments(); j++) { 
-      display.drawBitmap(monster[i]->x, monster[i]->getY() - (6 + j*2), mon_seg_1_bmp, 8, 2, BLACK);
-    }
+    drawMonsterSegments(i);
   } else { return; }
 
   //  draw flower
   if (monster[i]->showFlower()) {
-    display.drawBitmap(monster[i]->x - 2, monster[i]->getY() - 20, mon_flower_1_bmp, 11, 10, BLACK);
+    drawMonsterFlower(i);
   } else if (monster[i]->showBulb()) { 
-    Serial.println("draw bulb");
+    drawMonsterBulb(i);
   }
+}
+
+/**
+ * Draws the leaf for the monster
+ */
+void drawMonsterLeaf(int i) {
+  if (monster[i]->type == 1) {
+    display.drawBitmap(monster[i]->x - 6, monster[i]->getY() - 5, mon_leaf_1_bmp, 24, 5, BLACK);
+  } else if (monster[i]->type == 2) {
+    display.drawBitmap(monster[i]->x - 4, monster[i]->getY() - 5, mon_leaf_2_bmp, 15, 4, BLACK);
+  } else if (monster[i]->type == 3) {
+    display.drawBitmap(monster[i]->x, monster[i]->getY() - 2, mon_leaf_3_bmp, 7, 2, BLACK);
+  } else if (monster[i]->type == 4) {
+    display.drawBitmap(monster[i]->x - 4, monster[i]->getY() - 8, mon_leaf_4_bmp, 15, 13, BLACK);
+  }
+}
+
+/**
+ * Draws the flower for the monster
+ */
+void drawMonsterFlower(int i) {
+  if (monster[i]->type == 1) {
+    display.drawBitmap(monster[i]->x - 2, monster[i]->getY() - 20, mon_flower_1_bmp, 11, 10, BLACK);
+    display.drawBitmap(monster[i]->x - 2, monster[i]->getY() - 20, mon_flower_fill_1_bmp, 8, 10, WHITE);
+  } else if (monster[i]->type == 2) {
+    display.drawBitmap(monster[i]->x - 2, monster[i]->getY() - 15, mon_flower_2_bmp, 11, 5, BLACK);
+    display.drawPixel(monster[i]->x + 3, monster[i]->getY() -14, WHITE);  
+  } else if (monster[i]->type == 3) {
+    display.drawBitmap(monster[i]->x - 2, monster[i]->getY() - 16, mon_flower_3_bmp, 11, 6, BLACK);
+    display.drawBitmap(monster[i]->x - 2, monster[i]->getY() - 16, mon_flower_fill_3_bmp, 11, 6, WHITE);
+  } else if (monster[i]->type == 4) {
+    display.drawBitmap(monster[i]->x - 2, monster[i]->getY() - 25, mon_flower_4_bmp, 11, 9, BLACK);
+    display.drawBitmap(monster[i]->x - 2, monster[i]->getY() - 25, mon_flower_fill_4_bmp, 11, 9, WHITE);
+  }
+}
+
+/**
+ * Draws the bulb
+ */
+void drawMonsterBulb(int i) {
+  int yOffset = 16;
+  
+  if (monster[i]->type == 4) {
+    yOffset = 16 + 6;
+  }
+
+  display.drawBitmap(monster[i]->x + 1, monster[i]->getY() - yOffset, mon_bulb_bmp, 5, 6, BLACK);
+}
+
+/**
+ * Draws the segments for the monster
+ */
+void drawMonsterSegments(int i) {
+  int segHeight = 2;
+
+  for (int j=0; j<monster[i]->stemSegments(); j++) { 
+    if (monster[i]->type == 1) {
+      display.drawBitmap(monster[i]->x, monster[i]->getY() - (6 + j*segHeight), mon_seg_1_bmp, 7, 2, BLACK);
+    } else if (monster[i]->type == 2) {
+      display.drawBitmap(monster[i]->x, monster[i]->getY() - (6 + j*segHeight), mon_seg_2_bmp, 7, 2, BLACK);
+    } else if (monster[i]->type == 3) {
+      display.drawBitmap(monster[i]->x + 2, monster[i]->getY() - (6 + j*segHeight), mon_seg_3_bmp, 7, 2, BLACK);
+    } else if (monster[i]->type == 4) {
+      segHeight = 4;
+      display.drawBitmap(monster[i]->x - 1, monster[i]->getY() - (8 + j*segHeight), mon_seg_4_bmp, 9, 4, BLACK);
+    }
+  }
+  
 }
 
 /**
  * Draws the seed for a monster
  */
 void drawSeed(int i) {
-  display.drawCircle(monster[i]->x, monster[i]->getY(), 3, BLACK);
+  if (monster[i]->type == 1) {
+    display.drawBitmap(monster[i]->x, monster[i]->getY(), mon_seed_1_bmp, 7, 6, BLACK);
+  } else if (monster[i]->type == 2) {
+    display.drawBitmap(monster[i]->x, monster[i]->getY(), mon_seed_2_bmp, 7, 6, BLACK);
+  } else if (monster[i]->type == 3) {
+    display.drawBitmap(monster[i]->x, monster[i]->getY(), mon_seed_3_bmp, 7, 6, BLACK);
+  } else if (monster[i]->type == 4) {
+    display.drawBitmap(monster[i]->x, monster[i]->getY(), mon_seed_4_bmp, 7, 6, BLACK);
+  }
 }
 
 /**
