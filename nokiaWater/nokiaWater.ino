@@ -28,7 +28,6 @@ void setup() {
   Serial.begin(9600); // why this? I just dont know  
   randomSeed(analogRead(4));
 
-  Serial.println(2);
   display.begin();
   display.setContrast(60);
   display.clearDisplay();
